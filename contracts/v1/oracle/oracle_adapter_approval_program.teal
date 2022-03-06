@@ -1,0 +1,135 @@
+#pragma version 5
+txn OnCompletion
+int NoOp
+==
+bnz main_l2
+err
+main_l2:
+txn ApplicationID
+int 0
+==
+bnz main_l10
+txn CloseRemainderTo
+global ZeroAddress
+==
+assert
+txn RekeyTo
+global ZeroAddress
+==
+assert
+txna ApplicationArgs 0
+callsub sub1
+store 0
+txna ApplicationArgs 1
+callsub sub1
+store 1
+load 0
+int 0
+extract_uint64
+store 2
+load 1
+int 0
+extract_uint64
+store 3
+load 0
+int 8
+extract_uint64
+byte time_threshold
+app_global_get
++
+global LatestTimestamp
+>=
+assert
+load 1
+int 8
+extract_uint64
+byte time_threshold
+app_global_get
++
+global LatestTimestamp
+>=
+assert
+load 2
+load 3
+<
+bnz main_l9
+load 3
+store 5
+int 18
+store 4
+main_l5:
+load 5
+load 2
+<
+load 4
+&&
+bnz main_l8
+load 4
+main_l7:
+store 11
+load 2
+load 3
+load 11
+callsub sub0
+store 10
+int 1
+b main_l11
+main_l8:
+load 5
+int 10
+*
+store 5
+load 4
+int 1
+-
+store 4
+b main_l5
+main_l9:
+int 18
+b main_l7
+main_l10:
+txn NumAppArgs
+int 2
+==
+assert
+byte oracle_app_id
+txna ApplicationArgs 0
+btoi
+app_global_put
+byte time_threshold
+txna ApplicationArgs 1
+btoi
+app_global_put
+int 1
+main_l11:
+return
+sub0:
+store 8
+store 7
+store 6
+load 6
+int 10
+load 8
+exp
+mulw
+int 0
+load 7
+divmodw
+pop
+pop
+swap
+!
+assert
+retsub
+sub1:
+store 9
+byte oracle_app_id
+app_global_get
+load 9
+app_global_get_ex
+store 12
+store 13
+load 12
+assert
+load 13
+retsub

@@ -1,0 +1,204 @@
+#pragma version 5
+txn OnCompletion
+int NoOp
+==
+bnz main_l2
+err
+main_l2:
+txn ApplicationID
+int 0
+==
+bnz main_l15
+txna ApplicationArgs 0
+byte u
+==
+bnz main_l11
+txna ApplicationArgs 0
+byte s
+==
+bnz main_l10
+txna ApplicationArgs 0
+byte a
+==
+bnz main_l9
+txna ApplicationArgs 0
+byte r
+==
+bnz main_l8
+err
+main_l8:
+txn Sender
+addr PMYQRSLECSJHPJC6POYFSVKF223IY7BTFZ2CPRQRR4HC4U334PTJT2LVJE
+==
+assert
+txn CloseRemainderTo
+global ZeroAddress
+==
+assert
+txn RekeyTo
+global ZeroAddress
+==
+assert
+txn NumAppArgs
+int 2
+==
+assert
+global CurrentApplicationID
+txna ApplicationArgs 1
+app_global_get_ex
+store 4
+store 5
+load 4
+assert
+txna ApplicationArgs 1
+app_global_del
+int 1
+b main_l16
+main_l9:
+txn Sender
+addr PMYQRSLECSJHPJC6POYFSVKF223IY7BTFZ2CPRQRR4HC4U334PTJT2LVJE
+==
+assert
+txn CloseRemainderTo
+global ZeroAddress
+==
+assert
+txn RekeyTo
+global ZeroAddress
+==
+assert
+txn NumAppArgs
+int 3
+==
+assert
+global CurrentApplicationID
+txna ApplicationArgs 1
+app_global_get_ex
+store 2
+store 3
+load 2
+!
+assert
+txna ApplicationArgs 1
+txna ApplicationArgs 2
+global LatestTimestamp
+itob
+concat
+app_global_put
+int 1
+b main_l16
+main_l10:
+txn Sender
+addr PMYQRSLECSJHPJC6POYFSVKF223IY7BTFZ2CPRQRR4HC4U334PTJT2LVJE
+==
+assert
+txn CloseRemainderTo
+global ZeroAddress
+==
+assert
+txn RekeyTo
+global ZeroAddress
+==
+assert
+callsub sub0
+int 1
+b main_l16
+main_l11:
+txn Sender
+byte updater_addr
+app_global_get
+==
+assert
+txn CloseRemainderTo
+global ZeroAddress
+==
+assert
+txn RekeyTo
+global ZeroAddress
+==
+assert
+txna ApplicationArgs 1
+len
+store 1
+int 0
+store 0
+main_l12:
+load 0
+load 1
+<
+bnz main_l14
+int 1
+b main_l16
+main_l14:
+txna ApplicationArgs 1
+load 0
+load 0
+int 8
++
+substring3
+txna ApplicationArgs 1
+load 0
+int 8
++
+load 0
+int 16
++
+substring3
+callsub sub1
+load 0
+int 16
++
+store 0
+b main_l12
+main_l15:
+callsub sub0
+int 1
+main_l16:
+return
+sub0:
+txn NumAccounts
+int 1
+==
+assert
+byte updater_addr
+txna Accounts 1
+app_global_put
+retsub
+sub1:
+store 7
+store 6
+load 6
+app_global_get
+int 0
+extract_uint64
+store 8
+load 7
+btoi
+store 9
+load 8
+load 9
+>=
+bnz sub1_l2
+load 9
+load 8
+-
+b sub1_l3
+sub1_l2:
+load 8
+load 9
+-
+sub1_l3:
+int 1000
+*
+load 8
+/
+int 5
+<
+assert
+load 6
+load 7
+global LatestTimestamp
+itob
+concat
+app_global_put
+retsub
