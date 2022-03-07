@@ -8,3 +8,6 @@ An audit of these contracts has been completed by [Runtime Verification](https:/
 
 ## Bug Bounty Program
 Details of our bug bounty program can be found at (TODO).
+
+## Copyright
+We retain all rights to the source code and no one may reproduce, distribute, or create derivative works.
