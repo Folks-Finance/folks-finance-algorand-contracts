@@ -1,0 +1,342 @@
+#pragma version 5
+txn OnCompletion
+int NoOp
+==
+bnz main_l4
+txn OnCompletion
+int OptIn
+==
+bnz main_l3
+err
+main_l3:
+global GroupSize
+int 5
+==
+assert
+gtxn 0 TypeEnum
+int pay
+==
+gtxn 0 Sender
+gtxn 3 Sender
+==
+&&
+gtxn 0 Receiver
+gtxn 1 Sender
+==
+&&
+gtxn 0 Amount
+int 407000
+==
+&&
+gtxn 0 CloseRemainderTo
+global ZeroAddress
+==
+&&
+gtxn 0 RekeyTo
+global ZeroAddress
+==
+&&
+assert
+txn GroupIndex
+int 1
+==
+assert
+gtxn 1 CloseRemainderTo
+global ZeroAddress
+==
+assert
+gtxn 1 RekeyTo
+global CurrentApplicationAddress
+==
+assert
+gtxn 1 Fee
+int 0
+==
+assert
+gtxn 2 ApplicationID
+global CurrentApplicationID
+==
+assert
+gtxn 2 OnCompletion
+int NoOp
+==
+assert
+gtxna 2 ApplicationArgs 0
+byte "pl"
+==
+assert
+int 1
+b main_l18
+main_l4:
+txn ApplicationID
+int 0
+==
+bnz main_l17
+txna ApplicationArgs 0
+byte "ull"
+==
+bnz main_l16
+txna ApplicationArgs 0
+byte "pl"
+==
+bnz main_l10
+txna ApplicationArgs 0
+byte "c"
+==
+bnz main_l9
+err
+main_l9:
+global GroupSize
+int 1
+==
+assert
+txn CloseRemainderTo
+global ZeroAddress
+==
+assert
+txn RekeyTo
+global ZeroAddress
+==
+assert
+txn Sender
+int 1
+byte "user_address"
+app_local_get
+==
+assert
+global LatestTimestamp
+int 1
+byte "release"
+app_local_get
+>=
+assert
+itxn_begin
+int axfer
+itxn_field TypeEnum
+txna Accounts 1
+itxn_field Sender
+txn Sender
+itxn_field AssetReceiver
+byte "locked_asset_id"
+app_global_get
+itxn_field XferAsset
+int 0
+itxn_field AssetAmount
+txn Sender
+itxn_field AssetCloseTo
+int 0
+itxn_field Fee
+itxn_submit
+int 1
+byte "user_address"
+app_local_del
+int 1
+byte "release"
+app_local_del
+int 1
+b main_l18
+main_l10:
+global GroupSize
+int 5
+==
+assert
+gtxn 1 ApplicationID
+global CurrentApplicationID
+==
+assert
+gtxn 1 OnCompletion
+int OptIn
+==
+assert
+txn GroupIndex
+int 2
+==
+assert
+gtxna 2 Accounts 1
+gtxn 1 Sender
+==
+assert
+gtxn 2 CloseRemainderTo
+global ZeroAddress
+==
+assert
+gtxn 2 RekeyTo
+global ZeroAddress
+==
+assert
+int 3
+int NoOp
+byte "pl"
+callsub sub0
+assert
+byte "deposits"
+byte "deposits"
+app_global_get
+gtxn 4 TypeEnum
+int pay
+==
+bnz main_l15
+gtxn 4 TypeEnum
+int axfer
+==
+bnz main_l13
+err
+main_l13:
+gtxn 4 AssetAmount
+main_l14:
++
+app_global_put
+byte "deposits"
+app_global_get
+byte "limit"
+app_global_get
+<=
+assert
+itxn_begin
+int axfer
+itxn_field TypeEnum
+byte "locked_asset_id"
+app_global_get
+itxn_field XferAsset
+txna Accounts 1
+itxn_field Sender
+txna Accounts 1
+itxn_field AssetReceiver
+int 0
+itxn_field AssetAmount
+int 0
+itxn_field Fee
+itxn_submit
+int 1
+byte "user_address"
+txn Sender
+app_local_put
+int 1
+byte "release"
+global LatestTimestamp
+byte "time_locked"
+app_global_get
++
+app_local_put
+int 1
+b main_l18
+main_l15:
+gtxn 4 Amount
+b main_l14
+main_l16:
+global GroupSize
+int 1
+==
+assert
+txn Sender
+addr PMYQRSLECSJHPJC6POYFSVKF223IY7BTFZ2CPRQRR4HC4U334PTJT2LVJE
+==
+assert
+txn CloseRemainderTo
+global ZeroAddress
+==
+assert
+txn RekeyTo
+global ZeroAddress
+==
+assert
+txn NumAppArgs
+int 2
+==
+assert
+byte "limit"
+txna ApplicationArgs 1
+btoi
+app_global_put
+byte "deposits"
+app_global_get
+byte "limit"
+app_global_get
+<=
+assert
+int 1
+b main_l18
+main_l17:
+global GroupSize
+int 3
+==
+assert
+txn GroupIndex
+int 0
+==
+assert
+txn NumAppArgs
+int 5
+==
+assert
+byte "dispenser_app_id"
+txna ApplicationArgs 0
+btoi
+app_global_put
+byte "locked_asset_id"
+txna ApplicationArgs 1
+btoi
+app_global_put
+byte "rewards_ratio"
+txna ApplicationArgs 2
+btoi
+app_global_put
+byte "time_locked"
+txna ApplicationArgs 3
+btoi
+app_global_put
+byte "limit"
+txna ApplicationArgs 4
+btoi
+app_global_put
+int 1
+int OptIn
+byte "al"
+callsub sub0
+assert
+int 2
+int NoOp
+byte "al"
+callsub sub0
+assert
+byte "dispenser_app_id"
+app_global_get
+byte "f_asset_id"
+app_global_get_ex
+store 0
+store 1
+load 0
+assert
+byte "locked_asset_id"
+app_global_get
+load 1
+==
+assert
+int 1
+main_l18:
+return
+sub0:
+store 4
+store 3
+store 2
+load 2
+gtxns TypeEnum
+int appl
+==
+load 2
+gtxns OnCompletion
+load 3
+==
+&&
+load 2
+gtxns ApplicationID
+byte "dispenser_app_id"
+app_global_get
+==
+&&
+load 2
+gtxnsa ApplicationArgs 0
+load 4
+==
+&&
+retsub

@@ -1,0 +1,193 @@
+#pragma version 5
+txn OnCompletion
+int NoOp
+==
+bnz main_l2
+err
+main_l2:
+txn ApplicationID
+int 0
+==
+bnz main_l10
+txn CloseRemainderTo
+global ZeroAddress
+==
+assert
+txn RekeyTo
+global ZeroAddress
+==
+assert
+byte "oracle_1_app_id"
+app_global_get
+txna ApplicationArgs 0
+callsub sub1
+store 0
+byte "oracle_1_app_id"
+app_global_get
+txna ApplicationArgs 1
+callsub sub1
+store 1
+load 0
+int 0
+extract_uint64
+store 2
+load 1
+int 0
+extract_uint64
+store 3
+load 0
+int 8
+extract_uint64
+byte "time_threshold"
+app_global_get
++
+global LatestTimestamp
+>=
+assert
+load 1
+int 8
+extract_uint64
+byte "time_threshold"
+app_global_get
++
+global LatestTimestamp
+>=
+assert
+load 2
+load 3
+<
+bnz main_l9
+load 3
+store 7
+int 18
+store 6
+main_l5:
+load 7
+load 2
+<
+load 6
+&&
+bnz main_l8
+load 6
+main_l7:
+store 11
+load 2
+load 3
+load 11
+callsub sub0
+store 10
+byte "oracle_2_app_id"
+app_global_get
+txna ApplicationArgs 0
+callsub sub1
+int 0
+extract_uint64
+store 4
+byte "oracle_2_app_id"
+app_global_get
+txna ApplicationArgs 1
+callsub sub1
+int 0
+extract_uint64
+store 5
+load 2
+load 4
+callsub sub2
+assert
+load 3
+load 5
+callsub sub2
+assert
+int 1
+b main_l11
+main_l8:
+load 7
+int 10
+*
+store 7
+load 6
+int 1
+-
+store 6
+b main_l5
+main_l9:
+int 18
+b main_l7
+main_l10:
+txn NumAppArgs
+int 4
+==
+assert
+byte "oracle_1_app_id"
+txna ApplicationArgs 0
+btoi
+app_global_put
+byte "oracle_2_app_id"
+txna ApplicationArgs 1
+btoi
+app_global_put
+byte "price_threshold"
+txna ApplicationArgs 2
+btoi
+app_global_put
+byte "time_threshold"
+txna ApplicationArgs 3
+btoi
+app_global_put
+int 1
+main_l11:
+return
+sub0:
+store 12
+store 9
+store 8
+load 8
+int 10
+load 12
+exp
+mulw
+int 0
+load 9
+divmodw
+pop
+pop
+swap
+!
+assert
+retsub
+sub1:
+store 14
+store 13
+load 13
+load 14
+app_global_get_ex
+store 15
+store 16
+load 15
+assert
+load 16
+retsub
+sub2:
+store 18
+store 17
+load 17
+load 18
+>=
+bnz sub2_l2
+load 18
+load 17
+-
+b sub2_l3
+sub2_l2:
+load 17
+load 18
+-
+sub2_l3:
+int 1000
+*
+load 17
+/
+byte "price_threshold"
+app_global_get
+<
+retsub
