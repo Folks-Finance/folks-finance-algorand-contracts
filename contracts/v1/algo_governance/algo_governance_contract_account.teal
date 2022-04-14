@@ -1,0 +1,80 @@
+#pragma version 5
+txn GroupIndex
+int 1
+==
+assert
+txn Fee
+int 0
+==
+assert
+txn AssetCloseTo
+global ZeroAddress
+==
+assert
+txn CloseRemainderTo
+global ZeroAddress
+==
+assert
+txn RekeyTo
+global ZeroAddress
+==
+assert
+gtxn 0 TypeEnum
+int appl
+==
+gtxn 0 ApplicationID
+int 4391320
+==
+&&
+gtxn 0 OnCompletion
+int NoOp
+==
+&&
+assert
+gtxna 0 ApplicationArgs 0
+byte "um"
+==
+bnz main_l10
+gtxna 0 ApplicationArgs 0
+byte "b"
+==
+bnz main_l9
+gtxna 0 ApplicationArgs 0
+byte "cr"
+==
+bnz main_l8
+gtxna 0 ApplicationArgs 0
+byte "g"
+==
+bnz main_l7
+gtxna 0 ApplicationArgs 0
+byte "ca"
+==
+bnz main_l6
+err
+main_l6:
+global GroupSize
+int 2
+==
+b main_l11
+main_l7:
+global GroupSize
+int 2
+==
+b main_l11
+main_l8:
+global GroupSize
+int 2
+==
+b main_l11
+main_l9:
+global GroupSize
+int 3
+==
+b main_l11
+main_l10:
+global GroupSize
+int 3
+==
+main_l11:
+return

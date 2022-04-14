@@ -1,0 +1,11 @@
+#pragma version 5
+byte "total_commitment_abandoned"
+byte "total_commitment_abandoned"
+app_global_get
+int 0
+byte "committed"
+app_local_get
++
+app_global_put
+int 1
+return

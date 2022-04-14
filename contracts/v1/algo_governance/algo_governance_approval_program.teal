@@ -1,0 +1,552 @@
+#pragma version 5
+txn OnCompletion
+int NoOp
+==
+bnz main_l6
+txn OnCompletion
+int OptIn
+==
+bnz main_l5
+txn OnCompletion
+int CloseOut
+==
+bnz main_l4
+err
+main_l4:
+txn CloseRemainderTo
+global ZeroAddress
+==
+assert
+txn RekeyTo
+global ZeroAddress
+==
+assert
+int 0
+byte "committed"
+app_local_get
+int 0
+==
+assert
+int 1
+b main_l32
+main_l5:
+txn CloseRemainderTo
+global ZeroAddress
+==
+assert
+txn RekeyTo
+global ZeroAddress
+==
+assert
+int 0
+byte "committed"
+int 0
+app_local_put
+int 1
+b main_l32
+main_l6:
+txn ApplicationID
+int 0
+==
+bnz main_l31
+txna ApplicationArgs 0
+byte "s"
+==
+bnz main_l30
+txna ApplicationArgs 0
+byte "ur"
+==
+bnz main_l29
+txna ApplicationArgs 0
+byte "m"
+==
+bnz main_l26
+txna ApplicationArgs 0
+byte "um"
+==
+bnz main_l25
+txna ApplicationArgs 0
+byte "b"
+==
+bnz main_l24
+txna ApplicationArgs 0
+byte "cr"
+==
+bnz main_l23
+txna ApplicationArgs 0
+byte "g"
+==
+bnz main_l22
+txna ApplicationArgs 0
+byte "ca"
+==
+bnz main_l18
+txna ApplicationArgs 0
+byte "p"
+==
+bnz main_l17
+err
+main_l17:
+global GroupSize
+int 1
+==
+assert
+callsub sub1
+assert
+byte "is_minting_paused"
+txna ApplicationArgs 1
+btoi
+int 0
+>
+app_global_put
+int 1
+b main_l32
+main_l18:
+global GroupSize
+int 2
+==
+assert
+callsub sub1
+assert
+addr PMYQRSLECSJHPJC6POYFSVKF223IY7BTFZ2CPRQRR4HC4U334PTJT2LVJE
+byte "total_commitment_abandoned"
+app_global_get
+byte "rewards_per_algo"
+app_global_get
+int 16
+callsub sub0
+byte "can_claim_rewards"
+app_global_get
+!
+bnz main_l21
+int 0
+main_l20:
++
+callsub sub3
+assert
+global LatestTimestamp
+byte "period_end"
+app_global_get
+>=
+assert
+byte "total_commitment_abandoned"
+int 0
+app_global_put
+byte "can_claim_rewards"
+int 1
+app_global_put
+int 1
+b main_l32
+main_l21:
+byte "total_commitment"
+app_global_get
+byte "total_commitment_abandoned"
+app_global_get
+-
+byte "rewards_per_algo"
+app_global_get
+int 16
+callsub sub0
+byte "fee"
+app_global_get
+*
+int 1000
+/
+b main_l20
+main_l22:
+global GroupSize
+int 2
+==
+assert
+callsub sub1
+assert
+gtxn 0 NumAccounts
+int 1
+==
+assert
+gtxna 0 Accounts 1
+int 0
+callsub sub3
+assert
+int 1
+b main_l32
+main_l23:
+global GroupSize
+int 2
+==
+assert
+callsub sub2
+assert
+gtxn 0 Sender
+int 0
+byte "committed"
+app_local_get
+byte "rewards_per_algo"
+app_global_get
+int 16
+callsub sub0
+int 1000
+byte "fee"
+app_global_get
+-
+*
+int 1000
+/
+callsub sub3
+assert
+byte "can_claim_rewards"
+app_global_get
+assert
+int 0
+byte "committed"
+app_local_del
+int 1
+b main_l32
+main_l24:
+global GroupSize
+int 3
+==
+assert
+callsub sub2
+assert
+gtxn 0 Sender
+gtxn 2 AssetAmount
+callsub sub3
+assert
+callsub sub4
+assert
+global LatestTimestamp
+byte "period_end"
+app_global_get
+>
+assert
+int 1
+b main_l32
+main_l25:
+global GroupSize
+int 3
+==
+assert
+callsub sub2
+assert
+gtxn 0 Sender
+gtxn 2 AssetAmount
+callsub sub3
+assert
+callsub sub4
+assert
+global LatestTimestamp
+byte "commit_end"
+app_global_get
+<
+assert
+int 0
+byte "committed"
+app_local_get
+gtxn 2 AssetAmount
+>=
+assert
+byte "total_commitment"
+byte "total_commitment"
+app_global_get
+gtxn 2 AssetAmount
+-
+app_global_put
+int 0
+byte "committed"
+int 0
+byte "committed"
+app_local_get
+gtxn 2 AssetAmount
+-
+app_local_put
+int 1
+b main_l32
+main_l26:
+global GroupSize
+int 2
+==
+assert
+callsub sub2
+assert
+gtxn 1 TypeEnum
+int pay
+==
+gtxn 1 Sender
+gtxn 0 Sender
+==
+&&
+gtxn 1 Receiver
+byte "governance_contract_account_addr"
+app_global_get
+==
+&&
+gtxn 1 CloseRemainderTo
+global ZeroAddress
+==
+&&
+gtxn 1 RekeyTo
+global ZeroAddress
+==
+&&
+assert
+itxn_begin
+int axfer
+itxn_field TypeEnum
+byte "g_algo_id"
+app_global_get
+itxn_field XferAsset
+global CurrentApplicationAddress
+itxn_field Sender
+gtxn 1 Sender
+itxn_field AssetReceiver
+gtxn 1 Amount
+itxn_field AssetAmount
+int 0
+itxn_field Fee
+itxn_submit
+byte "is_minting_paused"
+app_global_get
+!
+assert
+global LatestTimestamp
+byte "commit_end"
+app_global_get
+<
+bnz main_l28
+main_l27:
+int 1
+b main_l32
+main_l28:
+byte "total_commitment"
+byte "total_commitment"
+app_global_get
+gtxn 1 Amount
++
+app_global_put
+int 0
+byte "committed"
+int 0
+byte "committed"
+app_local_get
+gtxn 1 Amount
++
+app_local_put
+b main_l27
+main_l29:
+global GroupSize
+int 1
+==
+assert
+callsub sub1
+assert
+txn NumAppArgs
+int 2
+==
+assert
+byte "rewards_per_algo"
+txna ApplicationArgs 1
+btoi
+app_global_put
+int 1
+b main_l32
+main_l30:
+global GroupSize
+int 1
+==
+assert
+callsub sub1
+assert
+int 0
+byte "g_algo_id"
+app_global_get_ex
+store 0
+store 1
+load 1
+!
+assert
+txn NumAccounts
+int 1
+==
+assert
+byte "governance_contract_account_addr"
+txna Accounts 1
+app_global_put
+itxn_begin
+int acfg
+itxn_field TypeEnum
+byte "Governance Algo 3"
+itxn_field ConfigAssetName
+byte "gALGO3"
+itxn_field ConfigAssetUnitName
+int 10000000000000000
+itxn_field ConfigAssetTotal
+int 6
+itxn_field ConfigAssetDecimals
+global CurrentApplicationAddress
+itxn_field ConfigAssetReserve
+int 0
+itxn_field Fee
+itxn_submit
+byte "g_algo_id"
+itxn CreatedAssetID
+app_global_put
+int 1
+b main_l32
+main_l31:
+global GroupSize
+int 1
+==
+assert
+txn NumAppArgs
+int 3
+==
+assert
+byte "commit_end"
+txna ApplicationArgs 0
+btoi
+app_global_put
+byte "period_end"
+txna ApplicationArgs 1
+btoi
+app_global_put
+byte "fee"
+txna ApplicationArgs 2
+btoi
+app_global_put
+byte "rewards_per_algo"
+int 0
+app_global_put
+byte "can_claim_rewards"
+int 0
+app_global_put
+byte "total_commitment"
+int 0
+app_global_put
+byte "total_commitment_abandoned"
+int 0
+app_global_put
+byte "is_minting_paused"
+int 0
+app_global_put
+global LatestTimestamp
+byte "commit_end"
+app_global_get
+<
+assert
+byte "commit_end"
+app_global_get
+byte "period_end"
+app_global_get
+<
+assert
+byte "fee"
+app_global_get
+int 1000
+<=
+assert
+int 1
+main_l32:
+return
+sub0:
+store 4
+store 3
+store 2
+load 2
+load 3
+mulw
+int 0
+int 10
+load 4
+exp
+divmodw
+pop
+pop
+swap
+!
+assert
+retsub
+sub1:
+txn Sender
+addr PMYQRSLECSJHPJC6POYFSVKF223IY7BTFZ2CPRQRR4HC4U334PTJT2LVJE
+==
+txn CloseRemainderTo
+global ZeroAddress
+==
+&&
+txn RekeyTo
+global ZeroAddress
+==
+&&
+retsub
+sub2:
+txn GroupIndex
+int 0
+==
+gtxn 0 CloseRemainderTo
+global ZeroAddress
+==
+&&
+gtxn 0 RekeyTo
+global ZeroAddress
+==
+&&
+retsub
+sub3:
+store 6
+store 5
+gtxn 1 TypeEnum
+int pay
+==
+gtxn 1 Sender
+byte "governance_contract_account_addr"
+app_global_get
+==
+&&
+gtxn 1 Receiver
+load 5
+==
+&&
+gtxn 1 Amount
+load 6
+==
+&&
+gtxn 1 CloseRemainderTo
+global ZeroAddress
+==
+&&
+gtxn 1 RekeyTo
+global ZeroAddress
+==
+&&
+retsub
+sub4:
+gtxn 2 TypeEnum
+int axfer
+==
+gtxn 2 XferAsset
+byte "g_algo_id"
+app_global_get
+==
+&&
+gtxn 2 Sender
+gtxn 0 Sender
+==
+&&
+gtxn 2 AssetReceiver
+global CurrentApplicationAddress
+==
+&&
+gtxn 2 AssetCloseTo
+global ZeroAddress
+==
+&&
+gtxn 2 CloseRemainderTo
+global ZeroAddress
+==
+&&
+gtxn 2 RekeyTo
+global ZeroAddress
+==
+&&
+retsub
