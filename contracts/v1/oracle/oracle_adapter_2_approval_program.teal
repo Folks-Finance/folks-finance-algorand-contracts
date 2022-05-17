@@ -1,4 +1,4 @@
-#pragma version 5
+#pragma version 6
 txn OnCompletion
 int NoOp
 ==
@@ -8,7 +8,19 @@ main_l2:
 txn ApplicationID
 int 0
 ==
-bnz main_l10
+bnz main_l19
+txna ApplicationArgs 0
+byte "a"
+==
+bnz main_l15
+txna ApplicationArgs 0
+byte "r"
+==
+bnz main_l14
+int 1
+bnz main_l7
+err
+main_l7:
 txn CloseRemainderTo
 global ZeroAddress
 ==
@@ -17,103 +29,184 @@ txn RekeyTo
 global ZeroAddress
 ==
 assert
-byte "oracle_1_app_id"
-app_global_get
 txna ApplicationArgs 0
-callsub sub1
-store 0
-byte "oracle_1_app_id"
-app_global_get
+callsub sub6
+store 12
 txna ApplicationArgs 1
-callsub sub1
-store 1
-load 0
-int 0
-extract_uint64
-store 2
-load 1
-int 0
-extract_uint64
-store 3
-load 0
-int 8
-extract_uint64
-byte "time_threshold"
-app_global_get
-+
-global LatestTimestamp
->=
-assert
-load 1
-int 8
-extract_uint64
-byte "time_threshold"
-app_global_get
-+
-global LatestTimestamp
->=
-assert
-load 2
-load 3
+callsub sub6
+store 13
+load 12
+load 13
 <
-bnz main_l9
-load 3
-store 7
+bnz main_l13
+load 13
+store 15
 int 18
-store 6
-main_l5:
-load 7
-load 2
+store 14
+main_l9:
+load 15
+load 12
 <
-load 6
+load 14
 &&
-bnz main_l8
-load 6
-main_l7:
+bnz main_l12
+load 14
+main_l11:
 store 11
-load 2
-load 3
+load 12
+load 13
 load 11
 callsub sub0
 store 10
-byte "oracle_2_app_id"
-app_global_get
-txna ApplicationArgs 0
-callsub sub1
-int 0
-extract_uint64
-store 4
-byte "oracle_2_app_id"
-app_global_get
-txna ApplicationArgs 1
-callsub sub1
-int 0
-extract_uint64
-store 5
-load 2
-load 4
-callsub sub2
-assert
-load 3
-load 5
-callsub sub2
-assert
 int 1
-b main_l11
-main_l8:
-load 7
+b main_l20
+main_l12:
+load 15
 int 10
 *
-store 7
-load 6
+store 15
+load 14
 int 1
 -
-store 6
-b main_l5
-main_l9:
+store 14
+b main_l9
+main_l13:
 int 18
-b main_l7
-main_l10:
+b main_l11
+main_l14:
+callsub sub2
+assert
+txn NumAssets
+int 1
+==
+assert
+txna Assets 0
+itob
+app_global_del
+int 1
+b main_l20
+main_l15:
+callsub sub2
+assert
+txn NumAppArgs
+int 2
+==
+assert
+txn NumAssets
+int 3
+==
+assert
+txna Assets 2
+itob
+txna ApplicationArgs 1
+btoi
+int 0
+>
+itob
+txna Assets 0
+itob
+concat
+txna Assets 1
+itob
+concat
+txna ApplicationArgs 1
+btoi
+int 0
+>
+bnz main_l18
+txn NumApplications
+int 1
+==
+assert
+txna Assets 0
+txna Assets 1
+<
+assert
+txna Applications 1
+byte "CONFIG"
+app_global_get_ex
+store 7
+store 6
+txna Applications 1
+byte "LTID"
+app_global_get_ex
+store 9
+store 8
+load 7
+assert
+load 9
+assert
+txna Assets 0
+load 6
+int 0
+extract_uint64
+==
+assert
+txna Assets 1
+load 6
+int 8
+extract_uint64
+==
+assert
+txna Assets 2
+load 8
+==
+assert
+txna Applications 1
+itob
+main_l17:
+concat
+app_global_put
+int 1
+b main_l20
+main_l18:
+txn NumAccounts
+int 1
+==
+assert
+txna Assets 0
+txna Assets 1
+>
+assert
+txna Accounts 1
+int 552635992
+byte "a1"
+app_local_get_ex
+store 1
+store 0
+txna Accounts 1
+int 552635992
+byte "a2"
+app_local_get_ex
+store 3
+store 2
+txna Accounts 1
+int 552635992
+byte "lt"
+app_local_get_ex
+store 5
+store 4
+load 1
+assert
+load 3
+assert
+load 5
+assert
+txna Assets 0
+load 0
+==
+assert
+txna Assets 1
+load 2
+==
+assert
+txna Assets 2
+load 4
+==
+assert
+txna Accounts 1
+b main_l17
+main_l19:
 txn NumAppArgs
 int 4
 ==
@@ -135,19 +228,20 @@ txna ApplicationArgs 3
 btoi
 app_global_put
 int 1
-main_l11:
+main_l20:
 return
+
 sub0:
-store 12
-store 9
-store 8
-load 8
+store 18
+store 17
+store 16
+load 16
 int 10
-load 12
+load 18
 exp
 mulw
 int 0
-load 9
+load 17
 divmodw
 pop
 pop
@@ -155,39 +249,217 @@ swap
 !
 assert
 retsub
+
 sub1:
-store 14
-store 13
-load 13
-load 14
+store 29
+store 28
+load 28
+load 29
 app_global_get_ex
-store 15
-store 16
-load 15
+store 31
+store 30
+load 31
 assert
-load 16
+load 30
 retsub
+
 sub2:
-store 18
-store 17
-load 17
-load 18
+txn Sender
+addr PMYQRSLECSJHPJC6POYFSVKF223IY7BTFZ2CPRQRR4HC4U334PTJT2LVJE
+==
+txn CloseRemainderTo
+global ZeroAddress
+==
+&&
+txn RekeyTo
+global ZeroAddress
+==
+&&
+retsub
+
+sub3:
+store 25
+store 24
+load 24
+load 25
 >=
-bnz sub2_l2
-load 18
-load 17
+bnz sub3_l2
+load 25
+load 24
 -
-b sub2_l3
-sub2_l2:
-load 17
-load 18
+b sub3_l3
+sub3_l2:
+load 24
+load 25
 -
-sub2_l3:
+sub3_l3:
 int 1000
 *
-load 17
+load 24
 /
 byte "price_threshold"
 app_global_get
 <
+retsub
+
+sub4:
+store 22
+byte "oracle_1_app_id"
+app_global_get
+callsub sub7
+store 23
+load 23
+byte "oracle_2_app_id"
+app_global_get
+callsub sub7
+callsub sub3
+assert
+load 23
+retsub
+
+sub5:
+store 32
+load 32
+extract 8 8
+callsub sub4
+store 33
+load 32
+extract 16 8
+callsub sub4
+store 34
+load 32
+int 0
+extract_uint64
+bnz sub5_l2
+load 32
+int 24
+extract_uint64
+store 42
+load 42
+byte "A"
+app_global_get_ex
+store 44
+store 43
+load 42
+byte "B"
+app_global_get_ex
+store 46
+store 45
+load 42
+byte "L"
+app_global_get_ex
+store 48
+store 47
+load 44
+assert
+load 46
+assert
+load 48
+assert
+load 43
+load 45
+load 33
+load 34
+load 47
+callsub sub8
+b sub5_l3
+sub5_l2:
+load 32
+extract 24 32
+store 35
+load 35
+int 552635992
+byte "s1"
+app_local_get_ex
+store 37
+store 36
+load 35
+int 552635992
+byte "s2"
+app_local_get_ex
+store 39
+store 38
+load 35
+int 552635992
+byte "ilt"
+app_local_get_ex
+store 41
+store 40
+load 37
+assert
+load 39
+assert
+load 41
+assert
+load 36
+load 38
+load 33
+load 34
+load 40
+callsub sub8
+sub5_l3:
+retsub
+
+sub6:
+store 19
+global CurrentApplicationID
+load 19
+app_global_get_ex
+store 21
+store 20
+load 21
+bnz sub6_l2
+load 19
+callsub sub4
+b sub6_l3
+sub6_l2:
+load 20
+callsub sub5
+sub6_l3:
+retsub
+
+sub7:
+store 26
+load 26
+load 22
+callsub sub1
+store 27
+load 27
+int 8
+extract_uint64
+byte "time_threshold"
+app_global_get
++
+global LatestTimestamp
+>=
+assert
+load 27
+int 0
+extract_uint64
+retsub
+
+sub8:
+store 53
+store 52
+store 51
+store 50
+store 49
+int 2
+load 49
+itob
+load 51
+itob
+b*
+load 50
+itob
+load 52
+itob
+b*
+b*
+bsqrt
+load 53
+itob
+b/
+btoi
+*
 retsub
